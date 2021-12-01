@@ -1,22 +1,22 @@
 FROM node:12-alpine as builder
 
-WORKDIR /usr/src/app
+RUN mkdir -p /usr/local/app
 
-ENV PATH /usr/src/app/node_modules/.bin:$PATH
+WORKDIR /usr/local/app
 
-COPY package.json /usr/src/app/package.json
+ENV PATH /usr/local/app/node_modules/.bin:$PATH
+
+COPY . /usr/local/app/
 
 RUN npm install -g @angular/cli@9.1.12
 
 RUN npm install
 
-COPY . .
-
 RUN npm run build
 
 FROM nginx:1.19.3
 
-COPY --from=builder /usr/src/app/dist/web-app /usr/share/nginx/html
+COPY --from=builder /usr/local/app/dist/web-app /usr/share/nginx/html
 
 EXPOSE 80
 
